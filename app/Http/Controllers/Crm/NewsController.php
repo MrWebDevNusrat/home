@@ -32,7 +32,7 @@ class NewsController extends Controller
             ->select('news.id', 'news_translations.title','news_translations.short_description','news_translations.description', 'news_translations.language', 'news.publish_at', 'news.type','news.status', 'news.img')
             ->selectRaw("(SELECT  string_agg(language,',')  FROM news_translations WHERE news_translations.news_id = news.id) AS translations")
             ->where([['news_translations.language', $language]])
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->where(function ($query) use ($request) {
                 if ($request->get('title'))
                     $query->where('news_translations.title', 'LIKE', "%{$request->get('title')}%");
@@ -260,7 +260,7 @@ class NewsController extends Controller
                 if (is_numeric($request->status))
                     $query->where('news.status','=',$request->status);
             })
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->get();
         $posts = News::mediaUrl($posts);
         return $this->successResponse($posts);

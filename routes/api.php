@@ -119,7 +119,7 @@ Route::group(['prefix' => 'auth', 'middleware' => ['auth.jwt:user']], function (
 });
 
 //resources uchun route
-    Route::group(['prefix' => 'resources', 'middleware' => ['guest']], function () {
+Route::group(['prefix' => 'resources', 'middleware' => ['guest']], function () {
     // File save start  ---
     //Image uploads
     Route::post('storeImage', 'Resources\FileController@storeImage');

@@ -24,7 +24,7 @@ class NewsController extends Controller
             ->selectRaw("(SELECT  string_agg(language,',')  FROM news_translations WHERE news_translations.news_id = news.id) AS translations")
             ->where([['news_translations.language', $language]])
             ->where('status',1)
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->where(function ($query) use ($request) {
                 if ($request->get('title'))
                     $query->where('news_translations.title', 'LIKE', "%{$request->get('title')}%");
@@ -85,7 +85,7 @@ class NewsController extends Controller
                     $query->where('news.status','=',$request->status);
 
             })
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->get();
         $posts = News::mediaUrl($posts);
         return $this->successResponse($posts);
