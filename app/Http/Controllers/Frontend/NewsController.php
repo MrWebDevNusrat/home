@@ -40,7 +40,7 @@ class NewsController extends Controller
 
             });
 
-        $posts = $posts->paginate($request->get('limit', Config::key('grid-pagination-limit')));
+        $posts = $posts->paginate($request->get('limit', Config::key('grid-frontend-pagination-limit')));
 
         $posts = News::mediaUrl($posts);
 

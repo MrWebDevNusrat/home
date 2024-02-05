@@ -21,6 +21,12 @@ class ConfigSeeder extends Seeder
         ]);
 
         $parent = Config::updateOrCreate([
+            'id' => 'grid-frontend-pagination-limit',
+            'value' => 6
+        ]);
+
+
+        $parent = Config::updateOrCreate([
             'id' => 'max-upload-file-size',
             'value' => 4096000
         ]);
