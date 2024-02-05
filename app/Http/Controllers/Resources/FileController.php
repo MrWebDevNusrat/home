@@ -18,6 +18,7 @@ use Intervention\Image\Facades\Image;
 
 class FileController extends Controller
 {
+
     public function storeFile(Request $request)
     {
         $validator = Validator::make($request->all(),
@@ -74,6 +75,15 @@ class FileController extends Controller
         return $this->successResponse($media);
     }
 
+    public function deleteImage(Request $request)
+    {
+        $path = storage_path().'/app/public/assets/'.$request['file_name'].'.'.$request['extension'];
+        if(File::exists($path)){
+            unlink($path);
+        }
+        return $this->successResponse("Image deleted successfully");
+    }
+
     public function storeFileEditor(Request $request)
     {
         $validator = Validator::make($request->all(),
@@ -107,12 +117,22 @@ class FileController extends Controller
         return $this->successResponse($media);
     }
 
+    public function deleteFileEditor(Request $request)
+    {
+        $path = storage_path().'/app/public/file_editor/file/'.$request['file_name'].'.'.$request['extension'];
+        if(File::exists($path)){
+            unlink($path);
+        }
+        return $this->successResponse("File deleted successfully");
+    }
+
     public function storeImageEditor(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'files.*' => 'required|image|mimes:jpeg,jpg,png|max:204800',
             'on_duplicate' => \Plank\Mediable\MediaUploader::ON_DUPLICATE_REPLACE,
         ]);
+
         if ($validator->fails()) {
             return $this->errorResponse($validator->messages(), 422);
         }

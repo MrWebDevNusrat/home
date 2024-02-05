@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
             ],
 
             [
-                'password' => bcrypt('admin2022_library'),
+                'password' => bcrypt('admin2024_website'),
                 'status' => 1,
                 'permission_group_id' => $permission_group->id,
                 'role' => 'admin'

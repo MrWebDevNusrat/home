@@ -29,11 +29,10 @@ class NewsController extends Controller
             return $this->errorResponse('Language can not be blank', 404);
 
         $posts = News::join('news_translations', 'news_translations.news_id', '=', 'news.id')
-            ->select('news.id', 'news_translations.title', 'news_translations.language', 'news.publish_at', 'news.type','news.status', 'news.img')
-//            ->selectRaw('(SELECT GROUP_CONCAT(language)  FROM post_translations WHERE post_translations.post_id = posts.id) AS translations')
+            ->select('news.id', 'news_translations.title','news_translations.short_description','news_translations.description', 'news_translations.language', 'news.publish_at', 'news.type','news.status', 'news.img')
             ->selectRaw("(SELECT  string_agg(language,',')  FROM news_translations WHERE news_translations.news_id = news.id) AS translations")
             ->where([['news_translations.language', $language]])
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->where(function ($query) use ($request) {
                 if ($request->get('title'))
                     $query->where('news_translations.title', 'LIKE', "%{$request->get('title')}%");
@@ -41,6 +40,10 @@ class NewsController extends Controller
                     $query->where('news.type', '=', $request->get('type'));
                 if ($request->get('publish_at'))
                     $query->where('news.publish_at', '=', $request->get('publish_at'));
+                if ($request->get('short_description'))
+                    $query->where('news_translations.short_description', 'LIKE', "%{$request->get('short_description')}%");
+                if ($request->get('description'))
+                    $query->where('news_translations.description', 'LIKE', "%{$request->get('description')}%");
                 if (is_numeric($request->status))
                     $query->where('news.status','=',$request->status);
 
@@ -59,8 +62,8 @@ class NewsController extends Controller
             'body'=>'required|array',
             'body.*.language' => 'required|string|exists:languages,code',
             'body.*.title' => 'required|string|max:255',
-            'short_description.*' => 'required|array',
-            'description.*' => 'required|array',
+            'body.*.short_description' => 'required|min:3',
+            'body.*.description' => 'required|min:3',
             'img' => 'exists:media,id',
             'publish_at' => 'required|date|date_format:d.m.Y',
             'type' => 'required|string|in:announce,news',
@@ -75,6 +78,7 @@ class NewsController extends Controller
             'img' => $request->img,
             'publish_at' => $request->publish_at,
             'type' => $request->type,
+            'status'=>$request->status
         ]);
 
         if ($request->img) {
@@ -122,11 +126,11 @@ class NewsController extends Controller
             'body'=>'required|array',
             'body.*.language' => 'required|string|exists:languages,code',
             'body.*.title' => 'required|string|max:255',
-            'short_description.*' => 'array|string',
-            'description.*' => 'array|string',
+            'body.*.short_description' => 'required|string|min:3',
+            'body.*.description' => 'required|string|min:3',
             'img' => 'exists:media,id',
             'publish_at' => 'required|date|date_format:d.m.Y',
-            'type' => 'required|string|in:page,news',
+            'type' => 'required|string|in:announce,news',
             'status' => 'required|integer|in:0,1,2',
         ]);
 
@@ -228,7 +232,7 @@ class NewsController extends Controller
     {
 
         $post = News::join('news_translations', 'news_translations.news_id', '=', 'news.id')
-            ->select('news.id', 'news_translations.title', 'news_translations.description', 'news_translations.language', 'news.publish_at','news.status', 'news.type', 'news.img')
+            ->select('news.id', 'news_translations.title', 'news_translations.description','news_translations.short_description', 'news_translations.language', 'news.publish_at','news.status', 'news.type', 'news.img')
             ->where('news.id', $id)
             ->where(function ($query) use ($request) {
                 if ($request->language)
@@ -256,7 +260,7 @@ class NewsController extends Controller
                 if (is_numeric($request->status))
                     $query->where('news.status','=',$request->status);
             })
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->get();
         $posts = News::mediaUrl($posts);
         return $this->successResponse($posts);

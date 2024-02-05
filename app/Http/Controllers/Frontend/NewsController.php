@@ -19,11 +19,12 @@ class NewsController extends Controller
             return $this->errorResponse('Language can not be blank', 404);
 
         $posts = News::join('news_translations', 'news_translations.news_id', '=', 'news.id')
-            ->select('news.id', 'news_translations.title', 'news_translations.language', 'news.publish_at', 'news.type','news.status', 'news.img')
-//            ->selectRaw('(SELECT GROUP_CONCAT(language)  FROM post_translations WHERE post_translations.post_id = posts.id) AS translations')
+            ->select('news.id', 'news_translations.title','news_translations.short_description','news_translations.description', 'news_translations.language', 'news.publish_at', 'news.type','news.status', 'news.img')
+            //            ->selectRaw('(SELECT GROUP_CONCAT(language)  FROM post_translations WHERE post_translations.post_id = posts.id) AS translations')
             ->selectRaw("(SELECT  string_agg(language,',')  FROM news_translations WHERE news_translations.news_id = news.id) AS translations")
             ->where([['news_translations.language', $language]])
-            ->orderBy('news.id','asc')
+            ->where('status',1)
+            ->orderBy('news.created_at','desc')
             ->where(function ($query) use ($request) {
                 if ($request->get('title'))
                     $query->where('news_translations.title', 'LIKE', "%{$request->get('title')}%");
@@ -31,6 +32,9 @@ class NewsController extends Controller
                     $query->where('news.type', '=', $request->get('type'));
                 if ($request->get('publish_at'))
                     $query->where('news.publish_at', '=', $request->get('publish_at'));
+                if ($request->get('short_description'))
+                    $query->where('news_translations.short_description', 'LIKE', "%{$request->get('short_description')}%");
+
                 if (is_numeric($request->status))
                     $query->where('news.status','=',$request->status);
 
@@ -67,6 +71,7 @@ class NewsController extends Controller
     {
         $posts = News::join('news_translations', 'news_translations.news_id', '=', 'news.id')
             ->select('news.id', 'news_translations.title','news_translations.short_description', 'news_translations.description', 'news_translations.language', 'news.publish_at', 'news.type', 'news.img')
+            ->where('news.status',1)
             ->where(function ($query) use ($request) {
                 if ($request->language)
                     $query->where('news_translations.language', '=', $request->language);
@@ -80,7 +85,7 @@ class NewsController extends Controller
                     $query->where('news.status','=',$request->status);
 
             })
-            ->orderBy('news.id','asc')
+            ->orderBy('news.created_at','desc')
             ->get();
         $posts = News::mediaUrl($posts);
         return $this->successResponse($posts);

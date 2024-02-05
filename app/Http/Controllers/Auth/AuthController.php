@@ -35,6 +35,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:4|max:255|email:rfc,dns|unique:users',
             'firstname' => 'required|string|max:20',
@@ -45,6 +46,8 @@ class AuthController extends Controller
             'password' => 'min:6|string|required_with:password_confirmation|same:password_confirmation',
             'password_confirmation' => 'min:6'
         ]);
+
+
 
         if ($validator->fails()) {
             $error = $validator->messages()->toJson();
@@ -117,7 +120,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:4|max:255|email:rfc,dns',
-            'password' => 'required|string|max:255'
+            'password' => 'required|string|min:6|max:255'
         ]);
 
         if ($validator->fails()) {

@@ -119,10 +119,11 @@ Route::group(['prefix' => 'auth', 'middleware' => ['auth.jwt:user']], function (
 });
 
 //resources uchun route
-Route::group(['prefix' => 'resources', 'middleware' => ['guest']], function () {
+    Route::group(['prefix' => 'resources', 'middleware' => ['guest']], function () {
     // File save start  ---
     //Image uploads
     Route::post('storeImage', 'Resources\FileController@storeImage');
+    Route::delete('deleteImage', 'Resources\FileController@deleteImage');
     //Test file upload
     Route::post('storeTest', 'Resources\FileController@storeTestFile');
     //File uploads
@@ -131,6 +132,7 @@ Route::group(['prefix' => 'resources', 'middleware' => ['guest']], function () {
     Route::post('storeImageEditor', 'Resources\FileController@storeImageEditor');
     //File uploads
     Route::post('storeFileEditor', 'Resources\FileController@storeFileEditor');
+    Route::delete('deleteFileEditor', 'Resources\FileController@deleteFileEditor');
     //-----
     //File download
     Route::get('download/{uuid}', 'Resources\FileController@download');
