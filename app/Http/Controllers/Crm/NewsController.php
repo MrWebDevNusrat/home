@@ -14,13 +14,13 @@ class NewsController extends Controller
 {
     public function __construct()
     {
-         $this->media = new FileController();
-         $this->middleware('permission:crm_news_index', ['only' => 'index']);
-         $this->middleware('permission:crm_news_store', ['only' => 'store', 'show']);
-         $this->middleware('permission:crm_news_update', ['only' => 'update', 'show']);
-         $this->middleware('permission:crm_news_update_status', ['only' => 'update_status', 'show']);
-         $this->middleware('permission:crm_news_show', ['only' => 'show']);
-         $this->middleware('permission:crm_news_destroy', ['only' => 'destroy']);
+        $this->media = new FileController();
+        $this->middleware('permission:crm_news_index', ['only' => 'index']);
+        $this->middleware('permission:crm_news_store', ['only' => 'store', 'show']);
+        $this->middleware('permission:crm_news_update', ['only' => 'update', 'show']);
+        $this->middleware('permission:crm_news_update_status', ['only' => 'update_status', 'show']);
+        $this->middleware('permission:crm_news_show', ['only' => 'show']);
+        $this->middleware('permission:crm_news_destroy', ['only' => 'destroy']);
     }
 
     public function index(Request $request)
@@ -32,7 +32,7 @@ class NewsController extends Controller
             ->select('news.id', 'news_translations.title','news_translations.short_description','news_translations.description', 'news_translations.language', 'news.publish_at', 'news.type','news.status', 'news.img')
             ->selectRaw("(SELECT  string_agg(language,',')  FROM news_translations WHERE news_translations.news_id = news.id) AS translations")
             ->where([['news_translations.language', $language]])
-            ->orderBy('news.id','desc')
+            ->orderBy('news.id','asc')
             ->where(function ($query) use ($request) {
                 if ($request->get('title'))
                     $query->where('news_translations.title', 'LIKE', "%{$request->get('title')}%");
@@ -260,7 +260,7 @@ class NewsController extends Controller
                 if (is_numeric($request->status))
                     $query->where('news.status','=',$request->status);
             })
-            ->orderBy('news.id','desc')
+            ->orderBy('news.id','asc')
             ->get();
         $posts = News::mediaUrl($posts);
         return $this->successResponse($posts);
